@@ -5,7 +5,8 @@ import torch
 from torch import nn
 from torch import optim
 import torch.nn.functional as F
-from torchvision import datasets, transforms, models
+from torchvision import datasets, transforms
+import torchvision.models as models
 import numpy as np
 import argparse
 import json
@@ -80,7 +81,10 @@ with open('cat_to_name.json', 'r') as f:
 # Building and training the classifier
 
 def build_model(device, network, hidden_units, lr):
-    model = models.network(pretrained=True)
+    if network == 'densenet121':
+        model = models.densenet121 (pretrained = True)
+    else:
+        model = models.vgg13 (pretrained = True)
     device = device
     #torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -110,12 +114,12 @@ def build_model(device, network, hidden_units, lr):
     
     return model
 
-def train_model(epochs, device, data_dir, gpu, arch, hidden_units, lr):
+def train_model(epochs, data_dir, device, arch, hidden_units, lr):
     steps = 0
     running_loss = 0
     print_every = 100
     train_losses, test_losses = [], []
-    model = build_model(gpu, arch, hidden_units, lr)
+    model = build_model(device, arch, hidden_units, lr)
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
     criterion = nn.NLLLoss()
     # Only train the classifier parameters, feature parameters are frozen
@@ -199,7 +203,7 @@ def test_model(data_dir):
     
 def save_checkpoint(data_dir, save_dir, model, device, arch, hidden_units, lr ):
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
-    model.class_to_idx = train_data.class_to_idx
+    model.class_to_idx = train_data.class_to_idsx
     model = build_model(device, arch, hidden_units, lr)
     checkpoint = {'classifier': model.classifier,
                   'droupout':0.2,
@@ -210,6 +214,18 @@ def save_checkpoint(data_dir, save_dir, model, device, arch, hidden_units, lr ):
                   'optimizer' : optimizer.state_dict(),}
     
     torch.save(checkpoint, save_dir)
+    
+def main():
+    data_transform(data_dir)
+    build_model(device, network, hidden_units, lr)
+    train_model(epochs, device, data_dir, arch, hidden_units, lr)
+    test_model(data_dir)
+    save_checkpoint(data_dir, save_dir, model, device, arch, hidden_units, lr )
+    
+
+    
+if __name__== "__main__":
+    main()
     
     
 
