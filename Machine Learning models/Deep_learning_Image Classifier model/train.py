@@ -178,9 +178,15 @@ def train_model(epochs, data_dir, device, network, hidden_units, lr):
                 model.train
     return model           
               
-def test_model(data_dir):
+def test_model(data_dir, device):
     test_loss = 0
     accuracy = 0
+    model = build_model(device, network, hidden_units, lr)
+    if torch.cuda.is_available() and device == 'cuda':
+        model.cuda()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device);
+    
     model.eval()
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
     with torch.no_grad():
@@ -220,7 +226,7 @@ def main():
     data_t = data_transform(data_dir)
     build_model(device, network, hidden_units, lr)
     train_model(epochs, data_dir, device, network, hidden_units, lr)
-    test_model(data_dir)
+    test_model(data_dir, device)
     save_checkpoint(data_dir, save_dir, model, device, network, hidden_units, lr )
     
 
@@ -229,4 +235,5 @@ if __name__== "__main__":
     main()
     
     
+
 

@@ -37,6 +37,7 @@ args = parser.parse_args()
 
 
 filepath = args.checkpoint
+#filepath = train.save_checkpoint(data_dir, save_dir, model, device, network, hidden_units, lr )
 image_path = args.image_path
 top_k = args.top_k
 device = args.device
