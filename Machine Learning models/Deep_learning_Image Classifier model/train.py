@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(description='Deep learning - Train a new networ
 parser.add_argument('data_dir', type=str,
                     help='path to parent data directory',default="./flowers/")
 parser.add_argument('--save_dir', type=str,
-                    help='path to directory to save the checkpoints',default="./checkpoint.pth")
+                    help='path to directory to save the checkpoints',default="./checkpoint_2.pth")
 parser.add_argument('--arch', type=str,
                     help='pretrained model as vgg13',default="densenet121")
 parser.add_argument('--lr', type=float,
@@ -30,7 +30,7 @@ parser.add_argument('--device', type=str,
 
 
 args = parser.parse_args()
-print(args.accumulate(args.integers))
+#print(args.accumulate(args.integers))
 
 # Load the data
 def data_transform(data_dir):

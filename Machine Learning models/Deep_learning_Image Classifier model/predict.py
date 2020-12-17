@@ -23,12 +23,12 @@ parser.add_argument('--device', type=str,
                     help='cuda or cpu?',default="cpu")
 
 # for testing
-parser.add_argument('--checkpoint', metavar='N', type=str,
-                    help='checkpoint path from part 1 (for testing)',default="./checkpoint.pth")
+parser.add_argument('--checkpoint', type=str,
+                    help='checkpoint path from part 1 (for testing)',default="checkpoint.pth")
 
 
 args = parser.parse_args()
-print(args.accumulate(args.integers))
+#print(args.accumulate(args.integers))
 
 #filepath = train.args.save_dir
 filepath = args.checkpoint
@@ -48,9 +48,10 @@ def load_checkpoint(filepath):
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
-    
     return model
-
+print('-----------debug 1----------')
+model = load_checkpoint(filepath)
+print(model)
 
 def process_image(image_path):
     ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
@@ -102,7 +103,6 @@ def imshow(image, ax=None, title=None):
     
     return ax
 
-model = load_checkpoint(filepath)
 
 def predict(image_path, filepath, top_k, device, category_names):
     ''' Predict the class (or classes) of an image using a trained deep learning model.
