@@ -189,6 +189,7 @@ def test_model(data_dir, device):
     
     model.eval()
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
+    criterion = nn.NLLLoss()
     with torch.no_grad():
         for inputs, labels in testloader:
             inputs, labels = inputs.to(device), labels.to(device)
