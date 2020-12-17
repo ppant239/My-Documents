@@ -57,7 +57,7 @@ def process_image(image_path):
     '''
  # TODO: Process a PIL image for use in a PyTorch model
 
-    im = Image.open(image)
+    im = Image.open(image_path)
     width, height = im.size   # Get dimensions
     
  # Resize the image
@@ -151,12 +151,12 @@ def main():
         names += [category_names[i]]
     print(names)
     
-    fig = plt.figure()
-    imshow(image)
-    plt.title(names[0])
-    plt.show()
+    #fig = plt.figure()
+    #imshow(image)
+    #plt.title(names[0])
+    #plt.show()
 
-    sns.barplot(x=probs, y=names,label="Total", color= 'b');
+    #sns.barplot(x=probs, y=names,label="Total", color= 'b');
 
     
 if __name__== "__main__":
