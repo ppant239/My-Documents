@@ -49,9 +49,7 @@ def load_checkpoint(filepath):
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
     return model
-print('-----------debug 1----------')
-model = load_checkpoint(filepath)
-print(model)
+
 
 def process_image(image_path):
     ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
@@ -138,23 +136,29 @@ def predict(image_path, filepath, top_k, device, category_names):
     
     return top_p_array, classes
 
+def main():
+    model = load_checkpoint(filepath)
+    print(model)
+    sns.set_style("darkgrid")
+    image = process_image(image_path)
+    probs,classes = predict(image_path, filepath, topk=5)
+    
+    print("Probability {:.2f}..%:".format(probs))
+    print("Class names:", classes)
+    
+    names = []
+    for i in classes:
+        names += [category_names[i]]
+    print(names)
+    
+    fig = plt.figure()
+    imshow(image)
+    plt.title(names[0])
+    plt.show()
 
+    sns.barplot(x=probs, y=names,label="Total", color= 'b');
 
-sns.set_style("darkgrid")
-image = process_image(image_path)
-probs,classes = predict(image_path, filepath, topk=5)
+    
+if __name__== "__main__":
+    main()
 
-print("Probability {:.2f}..%:".format(probs))
-print("Class names:", classes)
-
-names = []
-for i in classes:
-    names += [category_names[i]]
-print(names)
-
-fig = plt.figure()
-imshow(image)
-plt.title(names[0])
-plt.show()
-
-sns.barplot(x=probs, y=names,label="Total", color= 'b');
