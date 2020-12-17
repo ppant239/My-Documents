@@ -39,6 +39,7 @@ category_names = args.category_names
 
 def load_checkpoint(filepath):
     checkpoint = torch.load(filepath)
+    model = models. (pretrained = True)
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
@@ -125,8 +126,8 @@ def predict(image_path, filepath, top_k, device, category_names):
     return top_p_array, classes
 
 def main():
-    #model = load_checkpoint(filepath)
-    #print(model)
+    model = load_checkpoint(filepath)
+    print(model)
     sns.set_style("darkgrid")
     image = process_image(image_path)
     probs,classes = predict(image_path, filepath, topk=5)

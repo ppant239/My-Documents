@@ -81,7 +81,7 @@ def build_model(device, arch, hidden_units, lr):
     for param in model.parameters():
         param.requires_grad = False
     
-    if arch --'vgg13':
+    if arch == 'vgg13':
         model.classifier = nn.Sequential(nn.Linear(25088, hidden_units),
                                      nn.ReLU(),
                                      nn.Dropout(0.2),
