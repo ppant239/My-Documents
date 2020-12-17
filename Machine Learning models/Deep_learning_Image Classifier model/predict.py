@@ -21,7 +21,7 @@ parser.add_argument('--top_k', type=int,
 parser.add_argument('--category_names', type=str,
                     help='category name mapping',default="cat_to_name.json")
 parser.add_argument('--device', type=str,
-                    help='cuda or cpu?',default="cpu")
+                    help='cuda or cpu?',default="cuda")
 parser.add_argument('--arch', type=str,
                     help='pretrained model as vgg13',default="densenet121")
 
@@ -42,6 +42,8 @@ top_k = args.top_k
 device = args.device
 category_names = args.category_names
 network = args.arch
+with open(category_names, 'r') as f:
+    cat_to_name = json.load(f)
 
 def load_checkpoint(filepath, network):
     checkpoint = torch.load(filepath)
@@ -109,13 +111,16 @@ def predict(image_path, filepath, top_k, device, category_names, network):
     test_image = process_image(image_path)
     #display_image = imshow(test_image)
     #print('test image', display_image)
-    
-    img_tensor = torch.from_numpy(test_image).type(torch.FloatTensor)
+    if device == 'cuda':
+        img_tensor = torch.from_numpy (test_image).type (torch.cuda.FloatTensor)
+    else:
+        img_tensor = torch.from_numpy (test_image).type (torch.FloatTensor)
     image = img_tensor.unsqueeze(0)
     
     #image_u = Variable(image)
+    #print('-----device-----',device)
+    model.to(device)
     image_u = image.to(device)
-
     model.eval()
     with torch.no_grad ():
         image_u = model.forward(image_u)
@@ -136,7 +141,7 @@ def predict(image_path, filepath, top_k, device, category_names, network):
 
 def main():
     model = load_checkpoint(filepath, network)
-    print(model)
+    #print(model)
     sns.set_style("darkgrid")
     image = process_image(image_path)
     probs,classes = predict(image_path, filepath, top_k, device, category_names, network)

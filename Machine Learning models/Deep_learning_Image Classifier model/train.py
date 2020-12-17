@@ -25,7 +25,7 @@ parser.add_argument('--lr', type=float,
 parser.add_argument('--hidden_units', type=int,
                     help='hidden units',default=512)
 parser.add_argument('--epochs', type=int,
-                    help='number of epochs',default=20)
+                    help='number of epochs',default=5)
 parser.add_argument('--device', type=str,
                     help='cuda or cpu?',default="cpu")
 
@@ -121,43 +121,40 @@ def train_model(epochs, data_dir, device, network, hidden_units, lr):
     steps = 0
     running_loss = 0
     accuracy = 0
-    print_every = 100
+    print_every = 50
     train_losses, test_losses = [], []
     model = build_model(device, network, hidden_units, lr)
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
     criterion = nn.NLLLoss()
     # Only train the classifier parameters, feature parameters are frozen
     optimizer = optim.Adam(model.classifier.parameters(), lr=lr)
-    if torch.cuda.is_available() and device == 'gpu':
+    if torch.cuda.is_available() and device == 'cuda':
         model.cuda()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device);
-    for epoch in range(epochs):
-        for inputs, labels in trainloader:
+    for epoch in range(epochs):            
+        for images, labels in trainloader:
             steps += 1
-            # Move input and label tensors to the default device
-            inputs, labels = inputs.to(device), labels.to(device)
-            
+            images, labels = images.to(device), labels.to(device)
+            log_ps = model(images)
+            loss = criterion(log_ps, labels)            
             optimizer.zero_grad()
-            
-            logps = model.forward(inputs)
-            loss = criterion(logps, labels)
             loss.backward()
             optimizer.step()
-    
+            
             running_loss += loss.item()
-            # Calculate accuracy
-            ps = torch.exp(logps)
+                    # Calculate accuracy
+            ps = torch.exp(log_ps)
             top_p, top_class = ps.topk(1, dim=1)
             equals = top_class == labels.view(*top_class.shape)
             accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
         else:
             print(f"Training loss: {running_loss/len(trainloader)}..."
-                  f"Training accuracy: {accuracy/len(trainloader):.3f}")
+                 f"Training accuracy: {accuracy/len(trainloader):.3f}")
             
             if steps % print_every == 0:
                 test_loss = 0
-                accuracy = 0
+                accuracy1 = 0
                 model.eval()
                 with torch.no_grad():
                     for inputs, labels in validloader:
@@ -171,15 +168,12 @@ def train_model(epochs, data_dir, device, network, hidden_units, lr):
                         ps = torch.exp(logps)
                         top_p, top_class = ps.topk(1, dim=1)
                         equals = top_class == labels.view(*top_class.shape)
-                        accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
-            # storing losses for plotting
-                        train_losses.append(running_loss/len(trainloader))
-                        test_losses.append(test_loss/len(validloader))
+                        accuracy1 += torch.mean(equals.type(torch.FloatTensor)).item()
             #Print training and validation loss                   
                 print(f"Epoch {epoch+1}/{epochs}.. "
                       f"Train loss: {running_loss/print_every:.3f}.. "
                       f"Test loss: {test_loss/len(validloader):.3f}.. "
-                      f"Test accuracy: {accuracy/len(validloader):.3f}")
+                      f"Test accuracy1: {accuracy/len(validloader):.3f}")
                 running_loss = 0
                 model.train
     return model           
