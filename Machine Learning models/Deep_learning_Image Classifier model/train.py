@@ -63,9 +63,9 @@ def data_transform(data_dir):
                                       transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) ])
 
     # TODO: Load the datasets with ImageFolder
-    train_data = datasets.ImageFolder(data_dir + '/train', transform=train_transforms)
-    valid_data = datasets.ImageFolder(data_dir + '/valid', transform=valid_transforms)
-    test_data = datasets.ImageFolder(data_dir + '/test', transform=test_transforms)
+    train_data = datasets.ImageFolder(train_dir, transform=train_transforms)
+    valid_data = datasets.ImageFolder(valid_dir, transform=valid_transforms)
+    test_data = datasets.ImageFolder(test_dir, transform=test_transforms)
     
     # TODO: Using the image datasets and the trainforms, define the dataloaders
     trainloader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle=True)
@@ -84,15 +84,18 @@ def build_model(device, network, hidden_units, lr):
     if network == 'densenet121':
         model = models.densenet121 (pretrained = True)
     else:
-        model = models.vgg13 (pretrained = True)
-    device = device
+        model = models.vgg13 (pretrained = True)    
     #torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available() and device == 'gpu':
+        model.cuda()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device);
 
     # Freeze parameters so we don't backprop through them
     for param in model.parameters():
         param.requires_grad = False
     
-    if arch == 'vgg13':
+    if network == 'vgg13':
         model.classifier = nn.Sequential(nn.Linear(25088, hidden_units),
                                      nn.ReLU(),
                                      nn.Dropout(0.2),
@@ -114,16 +117,20 @@ def build_model(device, network, hidden_units, lr):
     
     return model
 
-def train_model(epochs, data_dir, device, arch, hidden_units, lr):
+def train_model(epochs, data_dir, device, network, hidden_units, lr):
     steps = 0
     running_loss = 0
+    accuracy = 0
     print_every = 100
     train_losses, test_losses = [], []
-    model = build_model(device, arch, hidden_units, lr)
+    model = build_model(device, network, hidden_units, lr)
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
     criterion = nn.NLLLoss()
     # Only train the classifier parameters, feature parameters are frozen
     optimizer = optim.Adam(model.classifier.parameters(), lr=lr)
+    if torch.cuda.is_available() and device == 'gpu':
+        model.cuda()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device);
     for epoch in range(epochs):
         for inputs, labels in trainloader:
@@ -201,10 +208,10 @@ def test_model(data_dir):
     f"Test loss: {test_loss/len(testloader):.3f}.. "
     f"Test accuracy: {accuracy/len(testloader):.3f}")
     
-def save_checkpoint(data_dir, save_dir, model, device, arch, hidden_units, lr ):
+def save_checkpoint(data_dir, save_dir, model, device, network, hidden_units, lr ):
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
     model.class_to_idx = train_data.class_to_idsx
-    model = build_model(device, arch, hidden_units, lr)
+    model = build_model(device, network, hidden_units, lr)
     checkpoint = {'classifier': model.classifier,
                   'droupout':0.2,
                   'lr':lr,
@@ -216,11 +223,11 @@ def save_checkpoint(data_dir, save_dir, model, device, arch, hidden_units, lr ):
     torch.save(checkpoint, save_dir)
     
 def main():
-    data_transform(data_dir)
+    data_t = data_transform(data_dir)
     build_model(device, network, hidden_units, lr)
-    train_model(epochs, device, data_dir, arch, hidden_units, lr)
+    train_model(epochs, data_dir, device, network, hidden_units, lr)
     test_model(data_dir)
-    save_checkpoint(data_dir, save_dir, model, device, arch, hidden_units, lr )
+    save_checkpoint(data_dir, save_dir, model, device, network, hidden_units, lr )
     
 
     
