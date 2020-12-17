@@ -39,6 +39,8 @@ category_names = args.category_names
 
 def load_checkpoint(filepath):
     checkpoint = torch.load(filepath)
+    print(train.arch)
+    model = models.densenet121(pretrained=True)
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])

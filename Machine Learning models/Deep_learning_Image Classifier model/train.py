@@ -31,6 +31,13 @@ parser.add_argument('--device', type=str,
 
 args = parser.parse_args()
 #print(args.accumulate(args.integers))
+data_dir = args.data_dir
+save_dir = args.save_dir
+arch = args.arch
+lr = args.lr
+hidden_units = args.hidden_units
+epochs = args.epochs
+device = args.device
 
 # Load the data
 def data_transform(data_dir):
