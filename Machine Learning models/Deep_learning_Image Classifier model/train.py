@@ -25,7 +25,7 @@ parser.add_argument('--lr', type=float,
 parser.add_argument('--hidden_units', type=int,
                     help='hidden units',default=512)
 parser.add_argument('--epochs', type=int,
-                    help='number of epochs',default=5)
+                    help='number of epochs',default=1)
 parser.add_argument('--device', type=str,
                     help='cuda or cpu?',default="cpu")
 
@@ -181,6 +181,7 @@ def train_model(epochs, data_dir, device, network, hidden_units, lr):
 def test_model(data_dir, device):
     test_loss = 0
     accuracy = 0
+    running_loss = 0
     model = build_model(device, network, hidden_units, lr)
     if torch.cuda.is_available() and device == 'cuda':
         model.cuda()
@@ -205,14 +206,14 @@ def test_model(data_dir, device):
             accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
                         
     print(#f"Epoch {epoch+1}/{epochs}.. "
-    f"Train loss: {running_loss/print_every:.3f}.. "
     f"Test loss: {test_loss/len(testloader):.3f}.. "
     f"Test accuracy: {accuracy/len(testloader):.3f}")
     
-def save_checkpoint(data_dir, save_dir, model, device, network, hidden_units, lr ):
+def save_checkpoint(data_dir, save_dir, device, network, hidden_units, lr ):
     train_data, trainloader, validloader, testloader = data_transform(data_dir)
-    model.class_to_idx = train_data.class_to_idsx
     model = build_model(device, network, hidden_units, lr)
+    model.class_to_idx = train_data.class_to_idx
+    optimizer = optim.Adam(model.classifier.parameters(), lr=lr)
     checkpoint = {'classifier': model.classifier,
                   'droupout':0.2,
                   'lr':lr,
@@ -228,7 +229,7 @@ def main():
     build_model(device, network, hidden_units, lr)
     train_model(epochs, data_dir, device, network, hidden_units, lr)
     test_model(data_dir, device)
-    save_checkpoint(data_dir, save_dir, model, device, network, hidden_units, lr )
+    save_checkpoint(data_dir, save_dir, device, network, hidden_units, lr )
     
 
     
