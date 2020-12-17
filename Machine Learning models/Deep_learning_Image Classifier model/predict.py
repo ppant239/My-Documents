@@ -3,7 +3,8 @@ import torch
 from torch import nn
 from torch import optim
 import torch.nn.functional as F
-from torchvision import datasets, transforms, models
+from torchvision import datasets, transforms
+import torchvision.models as models
 import numpy as np
 import argparse
 import json
@@ -21,6 +22,8 @@ parser.add_argument('--category_names', type=str,
                     help='category name mapping',default="cat_to_name.json")
 parser.add_argument('--device', type=str,
                     help='cuda or cpu?',default="cpu")
+parser.add_argument('--arch', type=str,
+                    help='pretrained model as vgg13',default="densenet121")
 
 # for testing
 parser.add_argument('--checkpoint', type=str,
@@ -31,16 +34,21 @@ args = parser.parse_args()
 #print(args.accumulate(args.integers))
 
 #filepath = train.args.save_dir
+
+
 filepath = args.checkpoint
 image_path = args.image_path
 top_k = args.top_k
 device = args.device
 category_names = args.category_names
+network = args.arch
 
-def load_checkpoint(filepath):
+def load_checkpoint(filepath, network):
     checkpoint = torch.load(filepath)
-    print(train.arch)
-    model = models.densenet121(pretrained=True)
+    if network == 'densenet121':
+        model = models.densenet121 (pretrained = True)
+    else:
+        model = models.vgg13 (pretrained = True)
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
@@ -94,9 +102,9 @@ def imshow(image, ax=None, title=None):
     return ax
 
 
-def predict(image_path, filepath, top_k, device, category_names):
+def predict(image_path, filepath, top_k, device, category_names, network):
     #load the model
-    model = load_checkpoint(filepath) # model = 'checkpoint.pth'
+    model = load_checkpoint(filepath, network) # model = 'checkpoint.pth'
     #process image
     test_image = process_image(image_path)
     #display_image = imshow(test_image)
@@ -115,7 +123,7 @@ def predict(image_path, filepath, top_k, device, category_names):
     ps = torch.exp(image_u)
     
     #top_p, top_class = np.array(ps.topk(1, dim=1))   
-    top_p, top_class = torch.topk(ps, topk)
+    top_p, top_class = torch.topk(ps, top_k)
     top_p_array = np.array(top_p)[0]
     top_c_array = np.array(top_class)[0]
     
@@ -127,26 +135,26 @@ def predict(image_path, filepath, top_k, device, category_names):
     return top_p_array, classes
 
 def main():
-    model = load_checkpoint(filepath)
+    model = load_checkpoint(filepath, network)
     print(model)
     sns.set_style("darkgrid")
     image = process_image(image_path)
-    probs,classes = predict(image_path, filepath, topk=5)
+    probs,classes = predict(image_path, filepath, top_k, device, category_names, network)
     
-    print("Probability {:.2f}..%:".format(probs))
+    print("Probability:", probs)
     print("Class names:", classes)
     
     names = []
     for i in classes:
-        names += [category_names[i]]
+        names += [cat_to_name[i]]
     print(names)
     
-    #fig = plt.figure()
-    #imshow(image)
-    #plt.title(names[0])
-    #plt.show()
+    fig = plt.figure()
+    imshow(image)
+    plt.title(names[0])
+    plt.show()
 
-    #sns.barplot(x=probs, y=names,label="Total", color= 'b');
+    sns.barplot(x=probs, y=names,label="Total", color= 'b');
 
     
 if __name__== "__main__":

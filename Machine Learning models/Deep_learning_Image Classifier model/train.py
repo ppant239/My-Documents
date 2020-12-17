@@ -17,7 +17,7 @@ parser.add_argument('data_dir', type=str,
                     help='path to parent data directory',default="./flowers/")
 parser.add_argument('--save_dir', type=str,
                     help='path to directory to save the checkpoints',default="./checkpoint_2.pth")
-parser.add_argument('--arch', type=str,
+parser.add_argument('--network', type=str,
                     help='pretrained model as vgg13',default="densenet121")
 parser.add_argument('--lr', type=float,
                     help='learning rate',default=.01)
@@ -33,7 +33,7 @@ args = parser.parse_args()
 #print(args.accumulate(args.integers))
 data_dir = args.data_dir
 save_dir = args.save_dir
-arch = args.arch
+network = args.network
 lr = args.lr
 hidden_units = args.hidden_units
 epochs = args.epochs
@@ -79,8 +79,8 @@ with open('cat_to_name.json', 'r') as f:
     
 # Building and training the classifier
 
-def build_model(device, arch, hidden_units, lr):
-    model = models.arch(pretrained=True)
+def build_model(device, network, hidden_units, lr):
+    model = models.network(pretrained=True)
     device = device
     #torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
