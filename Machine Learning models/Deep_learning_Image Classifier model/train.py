@@ -13,19 +13,19 @@ from PIL import Image
 
 
 parser = argparse.ArgumentParser(description='Deep learning - Train a new network on a data set')
-parser.add_argument('data_dir', metavar='N', type=str,
+parser.add_argument('data_dir', type=str,
                     help='path to parent data directory',default="./flowers/")
-parser.add_argument('--save_dir', metavar='N', type=str,
+parser.add_argument('--save_dir', type=str,
                     help='path to directory to save the checkpoints',default="./checkpoint.pth")
-parser.add_argument('--arch', metavar='N', type=str,
+parser.add_argument('--arch', type=str,
                     help='pretrained model as vgg13',default="densenet121")
-parser.add_argument('--lr', metavar='N', type=float,
-                    help='learning rate',default=,.01)
-parser.add_argument('--hidden_units', metavar='N', type=int,
+parser.add_argument('--lr', type=float,
+                    help='learning rate',default=.01)
+parser.add_argument('--hidden_units', type=int,
                     help='hidden units',default=512)
-parser.add_argument('--epochs', metavar='N', type=int,
+parser.add_argument('--epochs', type=int,
                     help='number of epochs',default=20)
-parser.add_argument('--device', metavar='N', type=str,
+parser.add_argument('--device', type=str,
                     help='cuda or cpu?',default="cpu")
 
 

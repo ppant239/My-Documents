@@ -13,13 +13,13 @@ import seaborn as sns
 
 
 parser = argparse.ArgumentParser(description='Deep learning - Train a new network on a data set')
-parser.add_argument('image_path', metavar='N', type=str,
+parser.add_argument('image_path', type=str,
                     help='path to image',default="./flowers/train/1/image_06740.jpg")
-parser.add_argument('--top_k', metavar='N', type=int,
+parser.add_argument('--top_k', type=int,
                     help='top k predictions',default=5)
-parser.add_argument('--category_names', metavar='N', type=str,
+parser.add_argument('--category_names', type=str,
                     help='category name mapping',default="cat_to_name.json")
-parser.add_argument('--device', metavar='N', type=str,
+parser.add_argument('--device', type=str,
                     help='cuda or cpu?',default="cpu")
 
 # for testing
