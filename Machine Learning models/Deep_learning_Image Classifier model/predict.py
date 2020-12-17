@@ -39,12 +39,6 @@ category_names = args.category_names
 
 def load_checkpoint(filepath):
     checkpoint = torch.load(filepath)
-    '''model = fc_model.Network(checkpoint['input_size'],
-                             checkpoint['output_size'],
-                             checkpoint['droupout'],
-                             checkpoint['epochs'],
-                             checkpoint['optimizer'])
-                             '''
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
@@ -52,9 +46,6 @@ def load_checkpoint(filepath):
 
 
 def process_image(image_path):
-    ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
-        returns an Numpy array
-    '''
  # TODO: Process a PIL image for use in a PyTorch model
 
     im = Image.open(image_path)
@@ -85,7 +76,6 @@ def process_image(image_path):
     return np_image
 
 def imshow(image, ax=None, title=None):
-    """Imshow for Tensor."""
     if ax is None:
         fig, ax = plt.subplots()
     image = image.transpose((1, 2, 0))
@@ -103,8 +93,6 @@ def imshow(image, ax=None, title=None):
 
 
 def predict(image_path, filepath, top_k, device, category_names):
-    ''' Predict the class (or classes) of an image using a trained deep learning model.
-    '''
     #load the model
     model = load_checkpoint(filepath) # model = 'checkpoint.pth'
     #process image
@@ -137,8 +125,8 @@ def predict(image_path, filepath, top_k, device, category_names):
     return top_p_array, classes
 
 def main():
-    model = load_checkpoint(filepath)
-    print(model)
+    #model = load_checkpoint(filepath)
+    #print(model)
     sns.set_style("darkgrid")
     image = process_image(image_path)
     probs,classes = predict(image_path, filepath, topk=5)
