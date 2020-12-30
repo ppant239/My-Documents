@@ -1,3 +1,0 @@
-# My-Documents
-
-#Udacity Projects
